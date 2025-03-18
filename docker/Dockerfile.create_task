@@ -1,0 +1,18 @@
+FROM public.ecr.aws/lambda/python:3.9
+
+# Set working directory
+WORKDIR /var/task
+
+# Copy dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy function code
+COPY src/create_task /var/task/
+
+# Copy .env file for local testing only (ignored in production)
+ARG ENVIRONMENT=local
+COPY .env /var/task/.env
+
+# Set the Lambda function handler
+CMD ["app.lambda_handler"]

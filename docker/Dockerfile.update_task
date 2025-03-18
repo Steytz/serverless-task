@@ -1,0 +1,11 @@
+FROM public.ecr.aws/lambda/python:3.9
+
+WORKDIR /var/task
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY src/update_task /var/task/
+COPY .env /var/task/.env
+
+CMD ["app.lambda_handler"]
