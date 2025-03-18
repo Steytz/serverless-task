@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless Task Management API
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 128
+
+Resources:
+  CreateTaskFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      Dockerfile: docker/Dockerfile.create_task
+      DockerContext: .
+      DockerTag: v1
+    Properties:
+      PackageType: Image
+      Timeout: 10
+      MemorySize: 128
+      Events:
+        CreateTask:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: POST
+
+  GetTasksFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      Dockerfile: docker/Dockerfile.get_tasks
+      DockerContext: .
+      DockerTag: v1
+    Properties:
+      PackageType: Image
+      Timeout: 10
+      MemorySize: 128
+      Events:
+        GetTasks:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: GET
+
+  UpdateTaskFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      Dockerfile: docker/Dockerfile.update_task
+      DockerContext: .
+      DockerTag: v1
+    Properties:
+      PackageType: Image
+      Timeout: 10
+      MemorySize: 128
+      Events:
+        UpdateTask:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: PUT
+
+  DeleteTaskFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      Dockerfile: docker/Dockerfile.delete_task
+      DockerContext: .
+      DockerTag: v1
+    Properties:
+      PackageType: Image
+      Timeout: 10
+      MemorySize: 128
+      Events:
+        DeleteTask:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: DELETE
+
+Outputs:
+  TasksApi:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/tasks/"
