@@ -6,8 +6,6 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY src/delete_task /var/task/
-
-# Copy .env file for local development (this will be ignored in production)
 COPY .env /var/task/.env
 
 CMD ["app.lambda_handler"]

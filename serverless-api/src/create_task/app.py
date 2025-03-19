@@ -40,26 +40,43 @@ class JSONEncoder(json.JSONEncoder):
             return str(obj)
         return super().default(obj)
 
+def make_response(status_code, body=None):
+    response = {
+        "statusCode": status_code,
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS, GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type"
+        }
+    }
+    if body is not None:
+        response["body"] = json.dumps(body, cls=JSONEncoder)
+    return response
+
 def lambda_handler(event, context):
     logger.info("Received event: %s", event)
 
+    if event.get("httpMethod") == "OPTIONS":
+        logger.info("Handling preflight OPTIONS request")
+        return make_response(200)
+
     if collection is None:
-        return {"statusCode": 500, "body": json.dumps({"error": "Database connection failed"})}
+        return make_response(500, {"error": "Database connection failed"})
 
     try:
         body = json.loads(event["body"])
         if "title" not in body:
-            return {"statusCode": 400, "body": json.dumps({"error": "Title is required"})}
+            return make_response(400, {"error": "Title is required"})
 
         task = {
             "id": str(uuid.uuid4()),
             "title": body["title"],
-            "status": "pending"
+            "status": "to-do"
         }
         
         collection.insert_one(task)
-        return {"statusCode": 201, "body": json.dumps({"message": "Task created", "task": task}, cls=JSONEncoder)}
+        return make_response(201, {"message": "Task created", "task": task})
 
     except Exception as e:
         logger.error(f"Error processing request: {str(e)}")
-        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
+        return make_response(500, {"error": str(e)})

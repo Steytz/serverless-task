@@ -24,6 +24,13 @@ Resources:
           Properties:
             Path: /tasks
             Method: POST
+            RestApiId: !Ref ServerlessRestApi
+        CreateTaskOptions:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: OPTIONS
+            RestApiId: !Ref ServerlessRestApi
 
   GetTasksFunction:
     Type: AWS::Serverless::Function
@@ -41,6 +48,7 @@ Resources:
           Properties:
             Path: /tasks
             Method: GET
+            RestApiId: !Ref ServerlessRestApi
 
   UpdateTaskFunction:
     Type: AWS::Serverless::Function
@@ -58,6 +66,7 @@ Resources:
           Properties:
             Path: /tasks/{id}
             Method: PUT
+            RestApiId: !Ref ServerlessRestApi
 
   DeleteTaskFunction:
     Type: AWS::Serverless::Function
@@ -75,6 +84,23 @@ Resources:
           Properties:
             Path: /tasks/{id}
             Method: DELETE
+            RestApiId: !Ref ServerlessRestApi
+        DeleteTaskOptions:
+          Type: Api
+          Properties:
+            Path: /tasks/{id}
+            Method: OPTIONS
+            RestApiId: !Ref ServerlessRestApi
+
+  ServerlessRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: TaskManagementAPI
+      StageName: Prod
+      Cors:
+        AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
 
 Outputs:
   TasksApi:
