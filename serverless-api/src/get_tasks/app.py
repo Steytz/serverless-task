@@ -39,29 +39,29 @@ class JSONEncoder(json.JSONEncoder):
             return str(obj)
         return super().default(obj)
 
+def make_response(status_code, body):
+    return {
+        "statusCode": status_code,
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS, GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type"
+        },
+        "body": json.dumps(body, cls=JSONEncoder)
+    }
+
 def lambda_handler(event, context):
-    """Handles task deletion from MongoDB"""
-    logger.info(f"Received request: {event}")
+    logger.info("Received request to fetch tasks.")
 
     if collection is None:
-        return {"statusCode": 500, "body": json.dumps({"error": "Database connection failed"})}
+        return make_response(500, {"error": "Database connection failed"})
 
     try:
-        task_id = event.get("pathParameters", {}).get("id")
+        tasks = list(collection.find({}, {"_id": 0}))
+        logger.info(f"Fetched {len(tasks)} tasks.")
 
-        if not task_id:
-            logger.error("No task ID provided.")
-            return {"statusCode": 400, "body": json.dumps({"error": "Task ID is required"})}
-
-        result = collection.delete_one({"id": task_id})
-
-        if result.deleted_count == 0:
-            logger.warning(f"Task with ID {task_id} not found.")
-            return {"statusCode": 404, "body": json.dumps({"message": "Task not found"})}
-
-        logger.info(f"Task with ID {task_id} successfully deleted.")
-        return {"statusCode": 200, "body": json.dumps({"message": "Task deleted"})}
+        return make_response(200, tasks)
 
     except Exception as e:
-        logger.error(f"Error deleting task: {str(e)}")
-        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
+        logger.error(f"Error retrieving tasks: {str(e)}")
+        return make_response(500, {"error": str(e)})
