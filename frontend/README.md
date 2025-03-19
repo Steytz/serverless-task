@@ -54,11 +54,12 @@ pnpm test | npm run test | yarn test
 ## Known Issues & Improvements
 
 ### Optimizations
-- Implement **caching** for faster data retrieval
+- Implement react-query for **caching** and for optimized data retrieval
 - Improve performance of large task lists
 - Better handling of error states and retries
 - Add more unit tests
 - Add integration tests and component tests
+- Add Zustand or Redux as the project grows for an external store to have atomic ui updates be possible
 ### UI/UX Improvements
 - Enhance **dark mode support**
 - Improve mobile responsiveness further
